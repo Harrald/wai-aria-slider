@@ -14,7 +14,10 @@
 
         <ul id="tabs" role="tablist" class="tablist">
             <li role="presentation" class="tab">
-                <a id="tab1" href="#panel1" role="tab" aria-controls="panel1" aria-selected="true">Tab 1</a>
+                <a id="tab0" href="#panel0" role="tab" aria-controls="panel0" aria-selected="true">Tab 0</a>
+            </li>
+            <li role="presentation" class="tab">
+                <a id="tab1" href="#panel1" role="tab" aria-controls="panel1" aria-selected="false">Tab 1</a>
             </li>
             <li role="presentation" class="tab">
                 <a id="tab2" href="#panel2" role="tab" aria-controls="panel2" aria-selected="false">Tab 2</a>
@@ -22,16 +25,25 @@
             <li role="presentation" class="tab">
                 <a id="tab3" href="#panel3" role="tab" aria-controls="panel3" aria-selected="false">Tab 3</a>
             </li>
+            <li role="presentation" class="tab">
+                <a id="tab4" href="#panel4" role="tab" aria-controls="panel4" aria-selected="false">Tab 4</a>
+            </li>
         </ul>
 
         <div class="tabs-container">
-            <div id="panel1" role="tabpanel" aria-labelledby="tab1" class="tab-is-selected">
+            <div id="panel0" role="tabpanel" aria-labelledby="tab0" class="tab-is-selected">
+                This is some content
+            </div>
+            <div id="panel1" role="tabpanel" aria-labelledby="tab1">
                 This is some content
             </div>
             <div id="panel2" role="tabpanel" aria-labelledby="tab2">
                 This is some other content
             </div>
             <div id="panel3" role="tabpanel" aria-labelledby="tab3">
+                This is content
+            </div>
+            <div id="panel4" role="tabpanel" aria-labelledby="tab4">
                 This is content in the last tab
             </div>
         </div>
@@ -63,8 +75,6 @@
             </div>
         </div>
     </div>
-
-
 
 <!--<script src="js/lib/mootools-core-1.4.5-full-nocompat.js"></script>-->
 <script src="js/Tabs.js"></script>

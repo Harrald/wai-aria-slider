@@ -1,13 +1,12 @@
-(function(){
+(function(supported){
+    if(supported) return;
     Array.from = function(arg){
         return Array.slice(arg, 0);
     }
-
-})();
+})(typeof Array.from === "function");
 
 
 (function(tablists){
-    console.log('test', tablists);
 
     function matches(el, selector){
         return el === selector || (el.matches || el.matchesSelector || el.msMatchesSelector || el.mozMatchesSelector || el.webkitMatchesSelector || el.oMatchesSelector).call(el, selector);
@@ -28,33 +27,32 @@
         var panel_tab_map = [];
 
         // event handlers
-        function switch_active_panel(e){
-            e.preventDefault();
-            selectedTab.setAttribute('aria-selected', false);
-            var indexSelectedTab = Array.indexOf(tabs, selectedTab);
-            tab_panel_map[indexSelectedTab].classList.remove('tab-is-selected');
+        function switch_active_panel(){
 
-            this.setAttribute('aria-selected', 'true');
-            var index = Array.indexOf(tabs, this);
-            tab_panel_map[index].classList.add('tab-is-selected');
+            select.call(selectedTab, false);
+            select.call(this, true);
 
-            console.warn(selectedTab, this);
             selectedTab = this;
         }
         function switch_active_tab(e){
             var key = e.key.toLowerCase();
             if( -1 === ['left', 'right'].indexOf(key)) return;
-            e.preventDefault();
+            var currentIndex = Array.indexOf(tabs, selectedTab);
+            var newIndex = currentIndex + (key === 'left' ? -1:1);
 
-            var currentIndex = Array.indexOf(tabs, this);
-            var newIndex = currentIndex + (key === 'left'? -1:1);
-            //console.log(currentIndex, key, newIndex, tabs.length -1);
-            newIndex = Math.max(Math.min(newIndex, tabs.length -1), 0);
-            console.log(this, currentIndex, tabs[newIndex], newIndex);
+            // make sure index is within bounds
+            newIndex = Math.max(Math.min(newIndex, tabs.length - 1), 0);
+
             if(newIndex !== currentIndex){
-                //tabs[newIndex].focus();
                 switch_active_panel.call(tabs[newIndex], e);
             }
+        }
+
+        // select or unselect
+        function select(shouldSelect){
+            var index = Array.indexOf(tabs, this);
+            this.setAttribute('aria-selected', shouldSelect ? 'true':'false');
+            tab_panel_map[index].classList[shouldSelect ? 'add':'remove']('tab-is-selected');
         }
 
         // couple the tabs with the panels
@@ -68,7 +66,7 @@
         tablist.addEventListener('click', delegate(switch_active_panel, '[role=tab]'), false);
         tablist.addEventListener('keydown', delegate(switch_active_tab, '[role=tab]'), false);
 
-        // focus does not bubble
+        // focus does not bubble, so we cant use event delegation
         Array.forEach(tabs, function(tab){
             tab.addEventListener('focus', switch_active_panel, false);
         });
