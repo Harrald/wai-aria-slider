@@ -14,61 +14,47 @@ body
     padding: 10px;
 }
 
+.slider  {
+    margin-top: 40px;
+    float:left;
+    clear:left;
+}
 
-.tablist
-{
-    overflow: hidden;
-    list-style: none;
-    margin: 0 ;
-    padding: 0;
+.slider-bar {
+    position: relative;
+    width: 200px;
+    height: 10px;
+    background-color: lightgray;
+}
+
+.slider-knob {
+    position: absolute;
+    left: 0;
+    top: -2px;
+
+    cursor: pointer;
+}
+.slider-knob2 {
+    left: calc(100% - 13px);
 }
 
 
-.tablist .tab
-{
+.is-vertical .slider-bar {
+    position: relative;
+    height: 200px;
+    width: 10px;
+    background-color: lightgray;
+}
+
+output {
+    width: 50px;
+    height: 10px;
+    background-color: white;
+    color: red;
+}
+
+
+
+.slider > * {
     float:left;
 }
-
-.tablist .tab [role=tab]
-{
-    display: inline-block;
-    padding: 5px;
-    margin: 0 5px 0 0;
-
-    color: red;
-    background-color: dimgray;
-    text-decoration: none;
-}
-
-
-.tablist .tab [role=tab]:hover, .tablist .tab [role=tab][aria-selected=true]
-{
-    background-color: green;
-}
-
-.tablist .tab [role=tab]:focus
-{
-    outline-color: red;
-    outline-offset: -2px;
-    outline-style: groove;
-    outline-width: 2px;
-}
-
-
-.tabs-container
-{
-    width: 500px;
-}
-
-.tabs-container [role=tabpanel]
-{
-    display: none;
-    border: 1px solid gray;
-    padding: 10px;
-}
-
-.tabs-container [role=tabpanel].tab-is-selected
-{
-    display: block;
-}
-

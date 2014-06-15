@@ -8,133 +8,27 @@
 <body>
 
     <div id="wrapper">
-        <h1>WAI-ARIA</h1>
 
-        <p>Leren werken met WAI-ARIA</p>
 
-        <ul id="tabs" role="tablist" class="tablist">
-            <li role="presentation" class="tab">
-                <a id="tab0" href="#panel0" role="tab" aria-controls="panel0" aria-selected="true">Tab 0</a>
-            </li>
-            <li role="presentation" class="tab">
-                <a id="tab1" href="#panel1" role="tab" aria-controls="panel1" aria-selected="false">Tab 1</a>
-            </li>
-            <li role="presentation" class="tab">
-                <a id="tab2" href="#panel2" role="tab" aria-controls="panel2" aria-selected="false">Tab 2</a>
-            </li>
-            <li role="presentation" class="tab">
-                <a id="tab3" href="#panel3" role="tab" aria-controls="panel3" aria-selected="false">Tab 3</a>
-            </li>
-            <li role="presentation" class="tab">
-                <a id="tab4" href="#panel4" role="tab" aria-controls="panel4" aria-selected="false">Tab 4</a>
-            </li>
-        </ul>
-
-        <div class="tabs-container">
-            <div id="panel0" role="tabpanel" aria-labelledby="tab0" class="tab-is-selected">
-                This is some content
+        <div class="slider">
+            <output name="min"></output>
+            <div class="slider-bar">
+                <img src="img/sliderPointer.png" alt="knob min" class="slider-knob" tabindex="0" role="slider">
+                <img src="img/sliderPointer.png" alt="knob max" class="slider-knob slider-knob2" tabindex="0" role="slider">
             </div>
-            <div id="panel1" role="tabpanel" aria-labelledby="tab1">
-                This is some content
-            </div>
-            <div id="panel2" role="tabpanel" aria-labelledby="tab2">
-                This is some other content
-            </div>
-            <div id="panel3" role="tabpanel" aria-labelledby="tab3">
-                This is content
-            </div>
-            <div id="panel4" role="tabpanel" aria-labelledby="tab4">
-                This is content in the last tab
-            </div>
+            <output name="max"></output>
         </div>
 
-        <br>
-        <br>
 
-        <ul id="tabs2" role="tablist" class="tablist">
-            <li role="presentation" class="tab">
-                <a id="tab21" href="#panel21" role="tab" aria-controls="panel21" aria-selected="true">Tab 1</a>
-            </li>
-            <li role="presentation" class="tab">
-                <a id="tab22" href="#panel22" role="tab" aria-controls="panel22" aria-selected="false">Tab 2</a>
-            </li>
-            <li role="presentation" class="tab">
-                <a id="tab23" href="#panel23" role="tab" aria-controls="panel23" aria-selected="false">Tab 3</a>
-            </li>
-        </ul>
-
-        <div class="tabs-container">
-            <div id="panel21" role="tabpanel" aria-labelledby="tab21" class="tab-is-selected">
-                This is some content
+        <div class="slider is-vertical">
+            <div class="slider-bar">
+                <img src="img/sliderPointerVertical.png" alt="knob" class="slider-knob" tabindex="0" role="slider">
             </div>
-            <div id="panel22" role="tabpanel" aria-labelledby="tab22">
-                This is some other content
-            </div>
-            <div id="panel23" role="tabpanel" aria-labelledby="tab23">
-                This is content in the last tab
-            </div>
+            <output name="vertical"></output>
         </div>
+
+
     </div>
-
-<!--<script src="js/lib/mootools-core-1.4.5-full-nocompat.js"></script>-->
-<script src="js/Tabs.js"></script>
-<script>
-    /*
-    (function(tablists){
-        return;
-        if(!tablists.length) return;
-
-        tablists.each(initTabs);
-
-        function initTabs(tablist){
-            var tabs = tablist.getElements('[role=tab]');
-            var selectedTab = tabs.filter('[aria-selected=true]');
-
-            //event handlers
-            function switch_active_panel(e){
-                e.preventDefault();
-                selectedTab.set('aria-selected', 'false');
-                selectedTab.retrieve('panel').removeClass('tab-is-selected');
-
-                this.set('aria-selected', 'true');
-                this.retrieve('panel').addClass('tab-is-selected');
-
-                selectedTab = this;
-            }
-            function switch_active_tab(e){
-                if( ! ['left', 'right'].contains(e.key)) return;
-
-                var currentIndex = tabs.indexOf(this);
-                var newIndex = currentIndex + (e.key === 'left' ? -1:1);
-
-                newIndex = newIndex.limit(0, tabs.length);
-
-                if(newIndex !== currentIndex) {
-                    tabs[newIndex].focus();
-                }
-            }
-
-            // couple the tabs with the panels
-            tabs.each(function(tab){
-                var id = tab.get('aria-controls');
-                var panel = document.getElement('#'+id);
-
-                tab.store('panel', panel);
-                panel.store('tab', tab);
-            });
-
-            // add events
-            tablist.addEvents({
-                'click:relay([role=tab])': switch_active_panel,
-                'keydown:relay([role=tab])': switch_active_tab
-            });
-
-            // focus does not bubble
-            tabs.addEvent('focus', switch_active_panel);
-        }
-
-    })(document.getElements('[role=tablist]'));
-*/
-</script>
+<script src="js/slider.js"></script>
 </body>
 </html>
