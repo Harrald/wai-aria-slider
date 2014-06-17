@@ -238,18 +238,19 @@ events.subscribe('/move/max/', function(value){
             if( ! isWithinBounds(pos[axis], axis)) return;
             if(isRange && newPositionExceedsSibling(pos[axis], axis, knob)) return;
 
-            if(isVertical){
-                knob.top = pos[axis];
-                knob.el.style.top = Math.round(pos[axis] - halfKnobHeight) + 'px';
+            var property = isVertical ? 'top':'left';
+            var knobDimension = isVertical ? halfKnobHeight:halfKnobWidth;
 
+            if(isVertical){
                 events.publish('/move/vertical/', pos[axis]);
             }
             else{
-                knob.left = pos[axis];
-                knob.el.style.left = Math.round(pos[axis] - halfKnobWidth) + 'px';
-
                 events.publish('/move/'+ (knob.el === knob2.el ? 'max':'min') + '/', pos[axis]);
             }
+
+            knob[property] = pos[axis];
+            knob.el.style[property] = Math.round(pos[axis] - knobDimension) + 'px';
+            knob.el.setAttribute('aria-valuenow', pos[axis]);
         }
 
         // dragging

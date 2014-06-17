@@ -11,22 +11,23 @@
 
 
         <div class="slider">
-            <output name="min"></output>
+            <output name="min" id="slider1knob1value" role="presentation">0</output>
             <div class="slider-bar">
-                <img src="img/sliderPointer.png" alt="knob min" class="slider-knob" tabindex="0" role="slider">
-                <img src="img/sliderPointer.png" alt="knob max" class="slider-knob slider-knob2" tabindex="0" role="slider">
+                <span class="hidden" id="slider1knob1label">slider knob min</span>
+                <span class="hidden" id="slider1knob2label">slider knob max</span>
+                <img id="slider1knob1" src="img/sliderPointer.png" alt="knob min" class="slider-knob             " tabindex="0" role="slider" aria-valuemin="0" aria-valuemax="200" aria-valuenow="0" aria-labelledby="slider1knob1label" aria-controls="slider1knob1value">
+                <img id="slider1knob2" src="img/sliderPointer.png" alt="knob max" class="slider-knob slider-knob2" tabindex="0" role="slider" aria-valuemin="0" aria-valuemax="200" aria-valuenow="200" aria-labelledby="slider1knob2label" aria-controls="slider1knob2value">
             </div>
-            <output name="max"></output>
+            <output name="max" id="slider1knob2value" role="presentation">200</output>
         </div>
-
 
         <div class="slider is-vertical">
             <div class="slider-bar">
-                <img src="img/sliderPointerVertical.png" alt="knob" class="slider-knob" tabindex="0" role="slider">
+                <span class="hidden" id="slider2knob1label">slider knob min</span>
+                <img src="img/sliderPointerVertical.png" alt="knob" class="slider-knob" tabindex="0" role="slider" aria-valuemin="0" aria-valuemax="200" aria-valuenow="0" aria-labelledby="slider2knob1label" aria-controls="slider2knob1value">
             </div>
-            <output name="vertical"></output>
+            <output name="vertical" id="slider2knob1value" role="presentation"></output>
         </div>
-
 
     </div>
 <script src="js/slider.js"></script>
