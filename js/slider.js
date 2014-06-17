@@ -5,6 +5,11 @@
     }
 })(typeof Array.from === "function");
 
+// output elements
+var min = document.querySelector('output[name=min]');
+var max = document.querySelector('output[name=max]');
+var vertical = document.querySelector('output[name=vertical]');
+
 var events = (function(){
     var topics = {};
 
@@ -39,6 +44,16 @@ var events = (function(){
     };
 })();
 
+events.subscribe('/move/vertical/', function(value){
+    vertical.value = value;
+});
+events.subscribe('/move/min/', function(value){
+    min.value = value;
+});
+events.subscribe('/move/max/', function(value){
+    max.value = value;
+});
+
 (function _main(sliders){
 
     'use strict';
@@ -54,6 +69,7 @@ var events = (function(){
     }
 
     function throttle(callback, threshold){
+        // ISSUE: when moving fast, func wont execute
         var suppress = false;
         var clear = function() {
             suppress = false;
@@ -66,20 +82,6 @@ var events = (function(){
             }
         }
     }
-
-    var min = document.querySelector('output[name=min]');
-    var max = document.querySelector('output[name=max]');
-    var vertical = document.querySelector('output[name=vertical]');
-
-    events.subscribe('/move/vertical/', function(value){
-        vertical.value = value;
-    });
-    events.subscribe('/move/min/', function(value){
-        min.value = value;
-    });
-    events.subscribe('/move/max/', function(value){
-        max.value = value;
-    });
 
     Array.forEach(sliders, init);
 
@@ -142,7 +144,7 @@ var events = (function(){
             t: 0
         };
 
-        var mousemove = throttle(_mousemove, 16);
+        var throttledMousemove = throttle(_mousemove, 16);
 
         var isKnob2 = false;
 
@@ -171,18 +173,21 @@ var events = (function(){
             if( !(e.target === knob1.el || isRange && e.target === knob2.el)) return;
             if(keys.indexOf(key) === -1) return;
 
-            var knob = e.target === knob1.el ? knob1:knob2;
-            var minX = knob.el===knob1.el ? 0:knob1.left+1;
-            var minY = knob.el===knob1.el ? 0:knob1.top+1;
-            var maxX = isRange && knob.el===knob2.el ? knob2.left-1:maxValue;
-            var maxY = isRange && knob.el===knob2.el ? knob2.top-1:maxValue;
+            var isKnob1 = e.target === knob1.el;
+            var knob = isKnob1 ? knob1 : knob2;
+            var minX = isKnob1 ? 0 : knob1.left;
+            var minY = isKnob1 ? 0 : knob1.top;
+            var maxX = isRange && isKnob1 ? knob2.left : maxValue-1;
+            var maxY = isRange && isKnob1 ? knob2.top  : maxValue-1;
             var pos = {};
+
 
             if(['HOME', 'END'].indexOf(key) === -1){
                 pos.x = knob.left  + keysValues[key];
                 pos.y = knob.top + keysValues[key];
             }
             else{
+                console.log(maxX);
                 pos.x = key === 'HOME' ? minX:maxX;
                 pos.y = key === 'HOME' ? minY:maxY;
             }
@@ -192,13 +197,13 @@ var events = (function(){
 
         function attach() {
             document.addEventListener('dragstart', dragstart, false);
-            document.addEventListener('mousemove', mousemove, false);
+            document.addEventListener('mousemove', throttledMousemove, false);
             document.addEventListener('mouseup', mouseup, false);
         }
 
         function detach(){
             document.removeEventListener('dragstart', dragstart, false);
-            document.removeEventListener('mousemove', mousemove, false);
+            document.removeEventListener('mousemove', throttledMousemove, false);
             document.removeEventListener('mouseup', mouseup, false);
         }
 
@@ -209,6 +214,16 @@ var events = (function(){
             return isInBounds;
         }
 
+        function newPositionExceedsSibling(pos, axis, knob){
+            var property = axis === 'x' ? 'left':'top';
+            var pos2 = (knob.el === knob1.el ? knob2:knob1)[property];
+            var toCompare = [pos, pos2];
+
+            if(knob.el === knob2.el) toCompare.reverse();
+
+            return toCompare[0] > toCompare[1];
+        }
+
         function _mousemove(e){
             move(isKnob2 ? knob2:knob1, {
                 x: e.clientX - offsetParent.x,
@@ -216,9 +231,12 @@ var events = (function(){
             });
         }
 
+
+
         function move(knob, pos){
             var axis = isVertical ? 'y':'x';
             if( ! isWithinBounds(pos[axis], axis)) return;
+            if(isRange && newPositionExceedsSibling(pos[axis], axis, knob)) return;
 
             if(isVertical){
                 knob.top = pos[axis];
@@ -243,9 +261,10 @@ var events = (function(){
         // clicking
         knobBarEl.addEventListener('click', click, false);
 
+        // keyboard
         knobBarEl.addEventListener('keydown', keydown, false);
 
-        // place both knobs to their utmost position
+        // default positions
         move(knob1, {
             x: 0,
             y: 0
