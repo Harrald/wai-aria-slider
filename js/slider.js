@@ -44,14 +44,29 @@ var events = (function(){
     };
 })();
 
-events.subscribe('/move/vertical/', function(value){
-    vertical.value = value;
+events.subscribe('/move/vertical/', function(info){
+    var max = +info.el.getAttribute('aria-valuemax');
+    var min = +info.el.getAttribute('aria-valuemin');
+
+    var range = max - min;
+
+    vertical.value = Math.round(range * info.value);
 });
-events.subscribe('/move/min/', function(value){
-    min.value = value;
+events.subscribe('/move/min/', function(info){
+    var maxval = +info.el.getAttribute('aria-valuemax');
+    var minval = +info.el.getAttribute('aria-valuemin');
+
+    var range = maxval - minval;
+
+    min.value = Math.round(range * info.value);
 });
-events.subscribe('/move/max/', function(value){
-    max.value = value;
+events.subscribe('/move/max/', function(info){
+    var maxval = +info.el.getAttribute('aria-valuemax');
+    var minval = +info.el.getAttribute('aria-valuemin');
+
+    var range = maxval - minval;
+
+    max.value = Math.round(range * info.value);
 });
 
 (function _main(sliders){
@@ -83,7 +98,10 @@ events.subscribe('/move/max/', function(value){
         }
     }
 
-    Array.forEach(sliders, init);
+
+    setTimeout(function(){
+        Array.forEach(sliders, init);
+    }, 10); // account for time needed for layout calculation
 
     function init(slider){
         var knob1El = slider.querySelector('.slider-knob');
@@ -108,12 +126,12 @@ events.subscribe('/move/max/', function(value){
                 top: knob2El.y
             };
         }
-        var isVertical = slider.classList.contains('is-vertical');
         var knobBarEl = knob1El.offsetParent;
         var knobBarDimensions = {
             width: knobBarEl.clientWidth,
             height: knobBarEl.clientHeight
         };
+        var isVertical = knobBarDimensions.height>knobBarDimensions.width;
         var maxValue = isVertical ? knobBarDimensions.height:knobBarDimensions.width;
         var keys = [
             "RIGHT",
@@ -240,12 +258,13 @@ events.subscribe('/move/max/', function(value){
 
             var property = isVertical ? 'top':'left';
             var knobDimension = isVertical ? halfKnobHeight:halfKnobWidth;
+            var value = pos[axis] / maxValue;
 
             if(isVertical){
-                events.publish('/move/vertical/', pos[axis]);
+                events.publish('/move/vertical/', {value: value, el: knob.el});
             }
             else{
-                events.publish('/move/'+ (knob.el === knob2.el ? 'max':'min') + '/', pos[axis]);
+                events.publish('/move/'+ (knob.el === knob2.el ? 'max':'min') + '/', {value: value, el: knob.el});
             }
 
             knob[property] = pos[axis];
