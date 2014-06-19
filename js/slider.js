@@ -205,7 +205,6 @@ events.subscribe('/move/max/', function(info){
                 pos.y = knob.top + keysValues[key];
             }
             else{
-                console.log(maxX);
                 pos.x = key === 'HOME' ? minX:maxX;
                 pos.y = key === 'HOME' ? minY:maxY;
             }
