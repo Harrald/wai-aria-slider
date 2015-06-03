@@ -117,11 +117,11 @@
                     knob.el.style[property] = amountPx;
                 }
 
-                options.onMove.call(this, knob);
-
                 knob[property] = pos[axis];
                 knob.el.setAttribute('aria-valuenow', valueNow);
                 knob.label.value = valueNow;
+
+                options.onMove.call(this, knob);
             }.bind(this);
 
             // Setup
@@ -192,13 +192,18 @@
     var clickSupport = function _addClickSupport(){
         var knobBar = this.knobBar;
         var knobs = knobBar.knobs;
+        var knobElements = knobs.map(function(knob){ return knob.el });
+
         var click = function _click(e){
-            if(e.target !== knobBar.el) return;
-            var isFirstHalf = !(knobBar.isRange && Math.abs(knobs[0].left - e.layerX) > Math.abs(knobs[1].left - e.layerX));
+            if(knobElements.lastIndexOf(e.target) !== -1) return;
+
+            var x = e.clientX - knobBar.offset.left;
+
+            var isFirstHalf = !(knobBar.isRange && Math.abs(knobs[0].left - x) > Math.abs(knobs[1].left - x));
 
             this.move(isFirstHalf ? knobs[0]:knobs[1], {
-                x: e.layerX,
-                y: e.layerY
+                x: x,
+                y: e.clientY
             });
         }.bind(this);
 
