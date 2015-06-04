@@ -116,10 +116,8 @@
                 if(knobBar.isRange && newPositionExceedsSibling.call(this, pos, knob)) return;
 
                 var map = this.posMapping;
-                var knobDimension = knob[map.width] / 2;
-                var value = pos / knobBar.maxValue;
-                var valueNow = Math.round((knob.valueMax - knob.valueMin) * value);
-                var amountPx = Math.round(pos - knobDimension) + 'px';
+                var valueNow = Math.round((knob.valueMax - knob.valueMin) * (pos / knobBar.maxValue));
+                var amountPx = Math.round(pos - (knob[map.width] / 2)) + 'px';
 
                 if(hasCSSTransformSupport)
                 {
