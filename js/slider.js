@@ -42,11 +42,24 @@
             };
         }
 
+        function getPosMapping(isVertical){
+            return {
+                left: isVertical ? 'top':'left',
+                right: isVertical ? 'bottom':'right',
+                clientX: isVertical ? 'clientY':'clientX',
+                pageX: isVertical ? 'pageY':'pageX',
+                width: isVertical ? 'height':'width',
+                translateX: isVertical ? 'translateY':'translateX',
+                x: isVertical ? 'y':'x'
+            }
+        }
+
         function getKnobObject(el){
             var id = el.getAttribute('aria-controls');
             var valueMax = +el.getAttribute('aria-valuemax');
             var valueMin = +el.getAttribute('aria-valuemin');
             var valueNow = +el.getAttribute('aria-valuenow');
+            var isVertical = el.getAttribute('aria-orientation') === 'vertical';
             var label = document.getElementById(id);
 
             return {
@@ -58,21 +71,23 @@
                 width: el.width,
                 height: el.height,
                 left: el.x,
-                top: el.y
+                top: el.y,
+                pos: isVertical ? el.y : el.x
             };
         }
 
-        function isWithinBounds(pos, axis){
-            var isInBounds;
-            if(axis === 'x') isInBounds = pos >= this.knobBar.bounds.left && pos <= this.knobBar.bounds.right;
-            if(axis === 'y') isInBounds = pos >= this.knobBar.bounds.top && pos <= this.knobBar.bounds.bottom;
-            return isInBounds;
+        function isWithinBounds(pos){
+            var map = this.posMapping;
+            var notPastLeftSide  = (pos >= this.knobBar.bounds[map.left]);
+            var notPastRightSide = (pos <= this.knobBar.bounds[map.right]);
+
+            return notPastLeftSide && notPastRightSide;
         }
 
-        function newPositionExceedsSibling(pos, axis, knob){
+        function newPositionExceedsSibling(pos, knob){
+            var map = this.posMapping;
             var knobs = this.knobBar.knobs;
-            var property = axis === 'x' ? 'left':'top';
-            var pos2 = (knob.el === knobs[0].el ? knobs[1]:knobs[0])[property];
+            var pos2 = (knob.el === knobs[0].el ? knobs[1]:knobs[0])[map.left];
             var toCompare = [pos, pos2];
 
             if(knob.el === knobs[1].el) toCompare.reverse();
@@ -86,38 +101,37 @@
             options = options || {
                 onMove: function(){}
             };
+
             // private
             var hasCSSTransformSupport = typeof document.createElement('div').style.transform === 'string';
 
             // public (per instance)
             this.knobBar = getKnobBarObject(slider);
+            this.posMapping = getPosMapping(this.knobBar.isVertical);
 
             this.move = function _move(knob, pos){
-
                 var knobBar = this.knobBar;
-                var axis = knobBar.isVertical ? 'y':'x';
-                var property = knobBar.isVertical ? 'top':'left';
 
-                if( ! isWithinBounds.call(this, pos[axis], axis)) return;
-                if(knobBar.isRange && newPositionExceedsSibling.call(this, pos[axis], axis, knob)) return;
+                if( ! isWithinBounds.call(this, pos)) return;
+                if(knobBar.isRange && newPositionExceedsSibling.call(this, pos, knob)) return;
 
-                var knobDimension = knob[knobBar.isVertical ? 'height':'width'] / 2;
-                var value = pos[axis] / knobBar.maxValue;
+                var map = this.posMapping;
+                var knobDimension = knob[map.width] / 2;
+                var value = pos / knobBar.maxValue;
                 var valueNow = Math.round((knob.valueMax - knob.valueMin) * value);
-                var amountPx = Math.round(pos[axis] - knobDimension) + 'px';
+                var amountPx = Math.round(pos - knobDimension) + 'px';
 
                 if(hasCSSTransformSupport)
                 {
-                    var transformFunction = 'translate' + axis.toUpperCase();
-
-                    knob.el.style.transform = transformFunction + '('+amountPx+')';
+                    knob.el.style.transform = map.translateX + '('+amountPx+')';
                 }
                 else
                 {
-                    knob.el.style[property] = amountPx;
+                    knob.el.style[map.left] = amountPx;
                 }
 
-                knob[property] = pos[axis];
+                knob[map.left] = pos;
+                knob.pos = pos;
                 knob.el.setAttribute('aria-valuenow', valueNow);
                 knob.label.value = valueNow;
 
@@ -130,17 +144,11 @@
             }.bind(this));
 
             // default position knob 1
-            this.move(this.knobBar.knobs[0], {
-                x: 0,
-                y: 0
-            });
+            this.move(this.knobBar.knobs[0], 0);
 
             // default position knob 2
             if(this.knobBar.isRange){
-                this.move(this.knobBar.knobs[1], {
-                    x: this.knobBar.maxValue,
-                    y: this.knobBar.maxValue
-                });
+                this.move(this.knobBar.knobs[1], this.knobBar.maxValue);
             }
         };
 
@@ -150,6 +158,7 @@
     })();
 
     var dragSupport = function _addDragSupport(){
+        var map = this.posMapping;
         var knobBar = this.knobBar;
 
         var dragstart = function _dragstart(e){
@@ -167,10 +176,7 @@
             var knobs = knobBar.knobs;
             var knob = knobBar.isRange && knobs[1].el === knobBar.currentDragEl ? knobs[1]:knobs[0];
 
-            this.move(knob, {
-                x: e.clientX - knobBar.offset.left,
-                y: e.clientY - knobBar.offset.top
-            });
+            this.move(knob, e[map.clientX] - knobBar.offset[map.left]);
         }.bind(this);
 
         function eventListener(action) {
@@ -190,6 +196,7 @@
     };
 
     var clickSupport = function _addClickSupport(){
+        var map = this.posMapping;
         var knobBar = this.knobBar;
         var knobs = knobBar.knobs;
         var knobElements = knobs.map(function(knob){ return knob.el });
@@ -197,20 +204,17 @@
         var click = function _click(e){
             if(knobElements.lastIndexOf(e.target) !== -1) return;
 
-            var x = e.clientX - knobBar.offset.left;
+            var pos = e[map.clientX] - knobBar.offset[map.left];
+            var isFirstHalf = !(knobBar.isRange && Math.abs(knobs[0].pos - pos) > Math.abs(knobs[1].pos - pos));
 
-            var isFirstHalf = !(knobBar.isRange && Math.abs(knobs[0].left - x) > Math.abs(knobs[1].left - x));
-
-            this.move(isFirstHalf ? knobs[0]:knobs[1], {
-                x: x,
-                y: e.clientY
-            });
+            this.move(isFirstHalf ? knobs[0]:knobs[1], pos);
         }.bind(this);
 
         knobBar.el.addEventListener('click', click, false);
     };
 
     var keyboardSupport = function _addKeyboardSupport(){
+        var map = this.posMapping;
         var knobBar = this.knobBar;
         var knobs = knobBar.knobs;
         var keysValues = {
@@ -235,19 +239,16 @@
 
             var isKnob1 = e.target === knobs[0].el;
             var knob = isKnob1 ? knobs[0] : knobs[1];
-            var minX = isKnob1 ? 0 : knobs[0].left;
-            var minY = isKnob1 ? 0 : knobs[0].top;
-            var maxX = knobBar.isRange && isKnob1 ? knobs[1].left : knobBar.maxValue-1;
-            var maxY = knobBar.isRange && isKnob1 ? knobs[1].top  : knobBar.maxValue-1;
-            var pos = {};
+            var pos;
 
             if(['HOME', 'END'].indexOf(key) !== -1) {
-                pos.x = key === 'HOME' ? minX:maxX;
-                pos.y = key === 'HOME' ? minY:maxY;
+                var min = isKnob1 ? 0 : knobs[0][map.top];
+                var max = knobBar.isRange && isKnob1 ? knobs[1][map.top] : knobBar.maxValue-1;
+
+                pos = key === 'HOME' ? min:max;
             }
             else {
-                pos.x = knob.left + keysValues[key];
-                pos.y = knob.top  + keysValues[key];
+                pos = knob[map.left] + keysValues[key];
             }
 
             this.move(knob, pos);
@@ -255,6 +256,7 @@
     };
 
     var touchSupport = function _addTouchSupport(){
+        var map = this.posMapping;
         var knobBar = this.knobBar;
 
         var touchend = function _mouseup(){
@@ -270,10 +272,7 @@
             var knobs = knobBar.knobs;
             var knob = knobBar.isRange && knobs[1].el === knobBar.currentDragEl ? knobs[1]:knobs[0];
 
-            this.move(knob, {
-                x: e.pageX - knobBar.offset.left,
-                y: e.pageY - knobBar.offset.top
-            });
+            this.move(knob, e[map.pageX] - knobBar.offset[map.left]);
         }.bind(this);
 
         function eventListener(action) {
@@ -298,4 +297,3 @@
 
     window.Slider = Slider;
 })();
-
