@@ -8,7 +8,8 @@ Feel free to do whatever you want with the code
  - progressive enhancement
     - normal `input[type=number]` with min, max attributes
  - support for snap points
- - plugin style 
+ - plugin style way of adding showing more on onMove. ie; a range indicator or tooltip
+    - define this accross instances or per instance
  
  
 ##issues
