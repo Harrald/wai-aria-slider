@@ -25,6 +25,7 @@ body
     width: 200px;
     height: 10px;
     background-color: lightgray;
+    margin: 10px;
 }
 
 .slider-knob {
