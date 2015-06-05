@@ -13,10 +13,11 @@
             <output name="min" id="slider1knob1value" role="presentation">0</output>
             <div class="slider-bar">
                 <span class="slider-range"></span>
-                <img class="slider-knob" src="img/sliderPointer.png" alt="" tabindex="0" role="slider" aria-valuemin="0" aria-valuemax="300" aria-valuenow="0" aria-label="min" aria-controls="slider1knob1value">
-                <img class="slider-knob" src="img/sliderPointer.png" alt="" tabindex="0" role="slider" aria-valuemin="0" aria-valuemax="300" aria-valuenow="300" aria-label="max" aria-controls="slider1knob2value">
+                <img class="slider-knob" src="img/sliderPointer.png" alt="" tabindex="0" role="slider" aria-valuemin="0" aria-valuemax="1000" aria-valuenow="0" aria-label="min" aria-controls="slider1knob1value">
+                <img class="slider-knob" src="img/sliderPointer.png" alt="" tabindex="0" role="slider" aria-valuemin="0" aria-valuemax="1000" aria-valuenow="1000" aria-label="max" aria-controls="slider1knob2value">
             </div>
-            <output name="max" id="slider1knob2value" role="presentation">200</output>
+
+            <output name="max" id="slider1knob2value" role="presentation">1000</output>
         </div>
 
         <div class="slider is-vertical">
@@ -33,18 +34,15 @@
     var firstKnob = sliders[0].querySelector('.slider-knob');
     var slider = new Slider(sliders[0], {
         onMove: function(obj) {
-            if(firstKnob === obj.el){
+            if(firstKnob === obj.el) {
                 range.style.left = obj.left + 'px';
             }
-            else{
-
+            else {
                 range.style.right = ( (200 - obj.left)  ) + 'px';
             }
 
         }
     });
-
-    console.log(slider);
 
     var slider2 = new Slider(sliders[1]);
 </script>
