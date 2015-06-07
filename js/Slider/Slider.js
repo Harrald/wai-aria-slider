@@ -1,4 +1,4 @@
-(function _slider(){
+(function _slider(undefined){
 
     if( ! Function.prototype.bind)
     {
@@ -95,12 +95,23 @@
             return toCompare[0] > toCompare[1];
         }
 
+        function setOptions(defaultOptions, instanceOptions){
+
+            for(var i in defaultOptions){
+                if(instanceOptions[i] !== undefined){
+                    defaultOptions[i] = instanceOptions[i];
+                }
+            }
+
+            this.options = defaultOptions;
+        }
+
         // public (shared across instances)
         var _slider = function(slider, options) {
 
-            options = options || {
+            setOptions.call(this, {
                 onMove: function(){}
-            };
+            }, options || {});
 
             // private
             var hasCSSTransformSupport = typeof document.createElement('div').style.transform === 'string';
@@ -133,7 +144,7 @@
                 knob.el.setAttribute('aria-valuenow', valueNow);
                 knob.label.value = valueNow;
 
-                options.onMove.call(this, knob);
+                this.options.onMove.call(this, knob);
             }.bind(this);
 
             // Setup
@@ -155,7 +166,7 @@
         return _slider;
     })();
 
-    var dragSupport = function _addDragSupport(){
+    Slider.supportProviders.push(function _addDragSupport(){
         var map = this.posMapping;
         var knobBar = this.knobBar;
 
@@ -191,107 +202,7 @@
 
             eventListener('add');
         }, false);
-    };
-
-    var clickSupport = function _addClickSupport(){
-        var map = this.posMapping;
-        var knobBar = this.knobBar;
-        var knobs = knobBar.knobs;
-        var knobElements = knobs.map(function(knob){ return knob.el });
-
-        var click = function _click(e){
-            if(knobElements.lastIndexOf(e.target) !== -1) return;
-
-            var pos = e[map.clientX] - knobBar.offset[map.left];
-            var isFirstHalf = !(knobBar.isRange && Math.abs(knobs[0].pos - pos) > Math.abs(knobs[1].pos - pos));
-
-            this.move(isFirstHalf ? knobs[0]:knobs[1], pos);
-        }.bind(this);
-
-        knobBar.el.addEventListener('click', click, false);
-    };
-
-    var keyboardSupport = function _addKeyboardSupport(){
-        var map = this.posMapping;
-        var knobBar = this.knobBar;
-        var knobs = knobBar.knobs;
-        var keysValues = {
-            RIGHT: 1,
-            LEFT: -1,
-            UP: 1,
-            DOWN: -1,
-            ARROWUP: 1,
-            ARROWDOWN: -1,
-            ARROWRIGHT: 1,
-            ARROWLEFT: -1,
-            PAGEUP: 10,
-            PAGEDOWN: -10,
-            HOME: 0,
-            END: 0
-        };
-
-        knobBar.el.addEventListener('keydown', function _keydown(e){
-            var key = e.key.toUpperCase();
-            if( !(e.target === knobs[0].el || knobBar.isRange && e.target === knobs[1].el)) return;
-            if(keysValues[key] === undefined) return;
-
-            var isKnob1 = e.target === knobs[0].el;
-            var knob = isKnob1 ? knobs[0] : knobs[1];
-            var pos;
-
-            if(['HOME', 'END'].indexOf(key) !== -1) {
-                var min = isKnob1 ? 0 : knobs[0][map.top];
-                var max = knobBar.isRange && isKnob1 ? knobs[1][map.top] : knobBar.maxValue-1;
-
-                pos = key === 'HOME' ? min:max;
-            }
-            else {
-                pos = knob[map.left] + keysValues[key];
-            }
-
-            this.move(knob, pos);
-        }.bind(this), false);
-    };
-
-    var touchSupport = function _addTouchSupport(){
-        var map = this.posMapping;
-        var knobBar = this.knobBar;
-
-        var touchend = function _mouseup(){
-            knobBar.isDragging = false;
-            knobBar.currentDragEl = null;
-
-            eventListener('remove');
-        };
-
-        var touchmove = function _mousemove(e){
-            e.preventDefault();
-
-            var knobs = knobBar.knobs;
-            var knob = knobBar.isRange && knobs[1].el === knobBar.currentDragEl ? knobs[1]:knobs[0];
-
-            this.move(knob, e[map.pageX] - knobBar.offset[map.left]);
-        }.bind(this);
-
-        function eventListener(action) {
-            document[action + 'EventListener']('touchmove', touchmove, false);
-            document[action + 'EventListener']('touchend', touchend, false);
-        }
-
-        knobBar.el.addEventListener('touchstart', function _touchstart(e){
-            if(e.target.getAttribute('role') != 'slider') return;
-
-            knobBar.isDragging = true;
-            knobBar.currentDragEl = e.target;
-
-            eventListener('add');
-        }, false);
-    };
-
-    Slider.supportProviders.push(dragSupport);
-    Slider.supportProviders.push(clickSupport);
-    Slider.supportProviders.push(keyboardSupport);
-    Slider.supportProviders.push(touchSupport);
+    });
 
     window.Slider = Slider;
 })();
