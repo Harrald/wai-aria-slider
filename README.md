@@ -17,5 +17,4 @@ https://rawgit.com/Harrald/wai-aria-slider/master/index.html
 ##Issues
  - its hard to drag to the absolute end
  - <kbd>pageup</kbd> increment wont go further if next increment exceeds max even when knob is not at max. same for <kbd>pagedown</kbd> only the other way round
- - increment and decrementing is totally broken. It makes the assumption that the range is the same as the width of the slider in pixels. 
  
